@@ -93,7 +93,8 @@ public class WebTest {
         driver.get("http://www.99-bottles-of-beer.net/team.html");
         WebElement header = driver.findElement(By.xpath
                 ("/html/body/div/div[3]/p[7]/font/b"));
-        Assert.assertTrue(header.getText().toLowerCase().equals(header.getText()));
+        Assert.assertTrue(header.getText().toLowerCase().equals(header.getText())); //одинаковые
+        Assert.assertEquals(header.getText(), header.getText().toLowerCase());     //одинаковые
         Assert.assertEquals(header.getCssValue("color"), "rgb(255, 0, 0)");
     }
 
