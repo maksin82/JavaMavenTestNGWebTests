@@ -7,6 +7,10 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class WebTest {
 
     WebDriver driver;
@@ -18,7 +22,7 @@ public class WebTest {
 
     @AfterMethod
     public void after() {
-       driver.quit();
+        driver.quit();
     }
 
     //TC_11_01
@@ -93,7 +97,7 @@ public class WebTest {
         driver.get("http://www.99-bottles-of-beer.net/team.html");
         WebElement header = driver.findElement(By.xpath
                 ("/html/body/div/div[3]/p[7]/font/b"));
-        Assert.assertTrue(header.getText().toLowerCase().equals(header.getText()));
+        Assert.assertEquals(header.getText(), header.getText().toLowerCase());
         Assert.assertEquals(header.getCssValue("color"), "rgb(255, 0, 0)");
     }
 
@@ -220,6 +224,74 @@ public class WebTest {
         Assert.assertEquals(fontBold, "b");
         Assert.assertEquals(letterCapital, letterCapital.toUpperCase());
         Assert.assertEquals(color, "rgba(0, 0, 0, 0)");
+    }
+
+    //TC_12_08
+    /*Подтвердите, что решение на языке Shakespeare входит в топ 20 всех решений, в топ 10 решений на Esoteric Languages и в топ 6 решений-хитов. Но решение на языке Shakespeare не входит в список топовых решений на реальных языках программирования.
+(Можно написать одним тестом, но так, чтобы все Asserts были в конце теста. Или можно написать отдельные тесты на каждый requirenment.)
+    */
+    @Test
+    public void testTopShakespeare() {
+        driver.get("http://www.99-bottles-of-beer.net/toplist.html");
+        String shakespeare = "Shakespeare";
+
+        driver.findElement(By.xpath("//a[text() = 'Top Rated']")).click();
+        List<WebElement> topRated = driver.findElements(By.xpath("//tr//a"));
+        List<String> listRated = new ArrayList<>();
+        for (WebElement element : topRated) {
+            listRated.add(element.getText());
+        }
+        boolean isExists20 = (listRated.subList(0, 20)).contains(shakespeare);
+
+        driver.findElement(By.xpath
+                ("//a[text() = 'Top Rated Esoteric']")).click();
+        List<WebElement> esotericLanguages = driver.findElements(By.xpath("//tr//a"));
+        List<String> listEsoteric = new ArrayList<>();
+        for (WebElement element : esotericLanguages) {
+            listEsoteric.add(element.getText());
+        }
+        boolean isExists10 = (listEsoteric.subList(0, 10)).contains(shakespeare);
+
+        driver.findElement(By.xpath
+                ("//a[text() = 'Top Hits']")).click();
+        List<WebElement> topHits = driver.findElements(By.xpath("//tr//a"));
+        List<String> listHits = new ArrayList<>();
+        for (WebElement element : topHits) {
+            listHits.add(element.getText());
+        }
+        boolean isExists6 = (listHits.subList(0, 6)).contains(shakespeare);
+
+        Assert.assertTrue(isExists20);
+        Assert.assertTrue(isExists10);
+        Assert.assertTrue(isExists6);
+    }
+    // TC_12_10
+       /*
+    Подтвердите, что самое большое количество комментариев для решений на языке Java имеет версия “object-oriented version”
+      */
+
+    @Test
+    public void testJavaComments() {
+        driver.get("http://www.99-bottles-of-beer.net/j.html");
+
+        List<WebElement> languageName = driver.findElements(By.xpath("//tr//a"));
+        List<String> languageNames = new ArrayList<>();
+        for (WebElement element : languageName) {
+            languageNames.add(element.getText());
+        }
+        List<WebElement> numberOfComment = driver.findElements(By.xpath("//tr//td[4]"));
+        List<Integer> numberOfComments = new ArrayList<>();
+        for (WebElement element : numberOfComment) {
+            numberOfComments.add(Integer.valueOf(element.getText()));
+        }
+
+        List<Integer> numberOfCommentsForSort = new ArrayList<>(numberOfComments);
+
+        Collections.sort(numberOfCommentsForSort);
+        int max = numberOfCommentsForSort.get(numberOfCommentsForSort.size() - 1);
+        int n = numberOfComments.indexOf(max);
+
+        Assert.assertEquals(languageNames.get(n), "Java");
     }
 }
 
