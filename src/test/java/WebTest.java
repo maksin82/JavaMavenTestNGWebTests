@@ -174,7 +174,7 @@ public class WebTest {
     @Test
     public void testTable() {
 
-        driver.get(DEFAULT_URl);
+        driver.get("http://www.99-bottles-of-beer.net/");
 
         WebElement button = driver.findElement(By.xpath
                 ("/html/body/div/div[2]/ul[1]/li[2]/a"));
