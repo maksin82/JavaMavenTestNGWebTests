@@ -1,31 +1,37 @@
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.sql.Array;
+import java.util.*;
+
 public class WebTest {
 
-    WebDriver driver;
+    private static final String DEFAULT_URl = "http://www.99-bottles-of-beer.net/";
+
+    private WebDriver driver;
 
     @BeforeMethod
     public void before() {
-        driver = new FirefoxDriver();
+        driver = new ChromeDriver();
     }
 
     @AfterMethod
     public void after() {
-       driver.quit();
+        driver.quit();
     }
 
     //TC_11_01
     @Test
     public void testHead() {
         // WebDriver driver = new FirefoxDriver();
-        driver.get("http://www.99-bottles-of-beer.net/");
+        driver.get(DEFAULT_URl);
 
         WebElement header = driver.findElement(By.xpath("/html/body/div/div[1]/h1"));
         //String header1 = header.getText();
@@ -37,7 +43,7 @@ public class WebTest {
     //TC_11_02
     @Test
     public void testSubLanguage() {
-        driver.get("http://www.99-bottles-of-beer.net/");
+        driver.get(DEFAULT_URl);
 
         WebElement lastItem = driver.findElement(By.xpath
                 ("/html/body/div/div[2]/ul[1]/li[6]/a"));
@@ -59,6 +65,7 @@ public class WebTest {
     //TC_11_04
     @Test
     public void testMenuItem() {
+
         driver.get("http://www.99-bottles-of-beer.net/abc.html");
 
         WebElement header = driver.findElement(By.xpath
@@ -94,7 +101,7 @@ public class WebTest {
         WebElement header = driver.findElement(By.xpath
                 ("/html/body/div/div[3]/p[7]/font/b"));
         Assert.assertTrue(header.getText().toLowerCase().equals(header.getText()));
-        Assert.assertEquals(header.getCssValue("color"), "rgb(255, 0, 0)");
+        Assert.assertEquals(header.getCssValue("color"), "rgba(255, 255, 255, 1");
     }
 
     //TC_11_11
@@ -167,7 +174,7 @@ public class WebTest {
     @Test
     public void testTable() {
 
-        driver.get("http://www.99-bottles-of-beer.net/");
+        driver.get(DEFAULT_URl);
 
         WebElement button = driver.findElement(By.xpath
                 ("/html/body/div/div[2]/ul[1]/li[2]/a"));
@@ -207,6 +214,7 @@ public class WebTest {
     //TC_11_21
     @Test
     public void testRedFontWiteBold() {
+
         driver.get("http://www.99-bottles-of-beer.net/submitnewlanguage.html");
 
         WebElement header = driver.findElement(By.xpath
@@ -220,6 +228,213 @@ public class WebTest {
         Assert.assertEquals(fontBold, "b");
         Assert.assertEquals(letterCapital, letterCapital.toUpperCase());
         Assert.assertEquals(color, "rgba(0, 0, 0, 0)");
+    }
+
+    //TC_12_01
+    @Test
+    public void testSubmenuJ() {
+        driver.get(DEFAULT_URl);
+        driver.findElement(By.xpath("//a[text()='Browse Languages']")).click();
+        driver.findElement(By.xpath("//a[text()='J']")).click();
+
+        Assert.assertEquals(driver.findElement(By.xpath("//p[1]")).getText(),
+                "All languages starting with the letter J are shown, sorted by Language.");
+    }
+
+    //TC_12_02
+    @Test
+    public void testConfirmMySQLLastElement() {
+        driver.get(DEFAULT_URl);
+        driver.findElement(By.xpath("//a[text()='Browse Languages']")).click();
+        driver.findElement(By.xpath("//a[text()='M']")).click();
+
+        Assert.assertEquals(driver.findElement(By.xpath("(//tr)[last()]/td[1]")).getText(),
+                "MySQL");
+    }
+
+    //TC_12_03
+    @Test
+    public void testFindHeaderTableLanguages() {
+
+        driver.get(DEFAULT_URl);
+        driver.findElement(By.xpath("//a[text()='Browse Languages']")).click();
+
+        List<String> headerExpected = List.of("Language Author Date Comments Rate");
+
+        List<WebElement> elements = driver.findElements(By.xpath("//tr[1]"));
+
+        List<String> headerActual = new ArrayList<>();
+        for (WebElement element : elements) {
+            headerActual.add(element.getText());
+        }
+
+        Assert.assertEquals(headerActual, headerExpected);
+    }
+
+
+    //TC_12_04
+    @Test
+    public void testAuthtorDateCommentForMathematica() {
+
+        driver.get(DEFAULT_URl);
+        driver.findElement(By.xpath("//a[text()='Browse Languages']")).click();
+        driver.findElement(By.xpath("//a[text()='M']")).click();
+
+        List<String> strMath = List.of("Brenton Bostick", "03/16/06", "1");
+        List<WebElement> strMathElements = driver.findElements(By.xpath("//tr[22]//following-sibling::td"));
+
+        List<String> elementsText = new ArrayList<>();
+
+        for (int i = 0; i < strMathElements.size() - 1; i++) {
+            WebElement el = strMathElements.get(i);
+            elementsText.add(el.getText());
+        }
+
+        Assert.assertEquals(elementsText, strMath);
+    }
+
+    //TC_12_05
+    @Test
+    public void testLaguagesFromNumbers() {
+        driver.get(DEFAULT_URl);
+        driver.findElement(By.xpath("//a[text()='Browse Languages']")).click();
+        driver.findElement(By.xpath("//a[text()='0-9']")).click();
+
+        List<WebElement> elements = driver.findElements(By.xpath("//tr"));
+        Assert.assertTrue((elements.size() - 1) == 10);
+    }
+
+    //TC_12_06
+
+    private static String generateCode() {
+
+        final String randomNum = String.valueOf(((int) (100 + Math.random() * 899)));
+        return randomNum;
+    }
+
+    @Test
+    public void testInvalidSecurityCode() {
+
+        String error = "Error: Error: Invalid security code.";
+
+        driver.get(DEFAULT_URl);
+        driver.findElement(By.xpath("//a[contains(text(),'Guestbook')]")).click();
+        driver.findElement(By.xpath("//a[contains(text(), 'Sign Guestbook')]")).click();
+
+        driver.findElement(By.xpath("//input[contains(@name, 'name')]")).sendKeys("Name");
+        driver.findElement(By.xpath("//input[contains(@name, 'location')]")).sendKeys("Name");
+        driver.findElement(By.xpath("//input[contains(@name, 'email')]")).sendKeys("Name");
+        driver.findElement(By.xpath("//input[contains(@name, 'homepage')]")).sendKeys("Name");
+        driver.findElement(By.xpath("//input[contains(@name, 'captcha')]")).sendKeys(generateCode());
+        driver.findElement(By.xpath("//textarea[contains(@name, 'comment')]")).sendKeys("Name");
+
+        driver.findElement(By.xpath("//input[contains(@name, 'submit')]")).click();
+
+        Assert.assertEquals(driver.findElement(By.xpath("//div[@id='main']/p")).getText(), error);
+    }
+
+    //TC_12_07
+    @Test
+    public void testLogToReddi() {
+
+        driver.get(DEFAULT_URl);
+        driver.findElement(By.xpath("//a[text()='Browse Languages']")).click();
+        driver.findElement(By.xpath("//a[text()='M']")).click();
+        driver.findElement(By.xpath("//a[text()='mIRC']")).click();
+        driver.findElement(By.xpath("//a[text() = 'Correct plurals and uses more functions.']")).click();
+
+        final String link = "https://www.reddit.com/login/?dest=https%3A%2F%2Fwww.reddit.com%2Fsubmit%3Furl%3Dhttps%253A%252F%252Fwww.99-bottles-of-beer.net%252Flanguage-mirc-834.html%26title%3D99%2520Bottles%2520of%2520Beer%2520%257C%2520Language%2520mIRC";
+
+        driver.findElement(By.xpath("//a[@title = 'reddit']")).click();
+
+        for (String winHandle : driver.getWindowHandles()) {
+            driver.switchTo().window(winHandle);
+        }
+
+        Assert.assertEquals(driver.getCurrentUrl(), link);
+    }
+
+    //TC_12_08 *
+//
+//    protected List<String> getList(List<WebElement> list) {
+//
+//        List<String> elements = new ArrayList<String>();
+//
+//        for (WebElement element : list ) {
+//            String apart[] = element.getText().split(",");
+//            if(apart.length == 6){
+//                elements.add(apart[0].trim());
+//            }
+//        }
+//
+//        return elements;
+//    }
+//    @Test
+//    public void testShakespeareBestPractice() {
+//
+//        driver.get(DEFAULT_URl);
+//        driver.findElement(By.xpath("//a[text()='Top Lists']")).click();
+//
+//        driver.findElement(By.xpath("//a[text()='Top Rated']")).click();
+//        List<WebElement> topRated = driver.findElements(By.xpath("//table"));
+//
+//        driver.findElement(By.xpath("//a[text()='Top Rated Esoteric']")).click();
+//        List<WebElement> topEsoteric = driver.findElements(By.xpath("//table"));
+//
+//        driver.findElement(By.xpath("//a[text()='Top Hits']")).click();
+//        List<WebElement> topHit = driver.findElements(By.xpath("//table"));
+//
+//        List<String> elementsText = new ArrayList<>();
+//
+//        for (int i = 0; i < topRated.size(); i++) {
+//            WebElement el = topRated.get(i);
+//            elementsText.add(el.getText());
+//        }
+//
+//        System.out.println(elementsText);
+//    }
+
+    //TC_12_09
+
+    @Test
+    public void testNumberOfJavaSolution() {
+        driver.get(DEFAULT_URl);
+        driver.findElement(By.xpath("//a[text()='Search Languages']")).click();
+        driver.findElement(By.xpath("//input[@name='search']")).sendKeys("Java");
+        driver.findElement(By.xpath("//input[@name='submitsearch']")).click();
+
+        List<WebElement> listJava = driver.findElements
+                (By.xpath("//a[contains(text(), 'Java ') and not(contains(text(), 'Java Servlet'))]"));
+
+        List<String> elements = new ArrayList<>();
+        for (WebElement element : listJava) {
+            elements.add(element.getText());
+        }
+
+        Assert.assertEquals(elements.size(), 6);
+    }
+
+    //TC_12_10*
+
+    @Test
+    public void testWithMaximumCommentsOnJava() {
+        driver.get(DEFAULT_URl);
+        driver.findElement(By.xpath("//a[text()='Search Languages']")).click();
+        driver.findElement(By.xpath("//input[@name='search']")).sendKeys("Java");
+        driver.findElement(By.xpath("//input[@name='submitsearch']")).click();
+
+        List<WebElement> listJava = driver.findElements
+                (By.xpath("//td[1]|//td[4]"));
+
+        HashMap<String, String> passportsAndNames = new HashMap<>();
+        for (int i = 0; i < listJava.size()-2; i+=2) {
+            WebElement element = listJava.get(i);
+            WebElement element1 = listJava.get(i+1);
+            passportsAndNames.put(element1.getText(), element.getText());
+        }
+
+
+        System.out.println(passportsAndNames);
     }
 }
 
